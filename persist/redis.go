@@ -53,6 +53,8 @@ type RedisStore struct {
 	RedisClient *redis.Client
 }
 
+// redis的操作 实例化操作
+
 // NewRedisStore create a redis memory store with redis client
 func NewRedisStore(redisClient *redis.Client) *RedisStore {
 	return &RedisStore{

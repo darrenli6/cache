@@ -59,7 +59,9 @@ func TestCodec(t *testing.T) {
 	}
 
 	payload, err := Serialize(src)
+	//err nil
 	assert.Nil(t, err)
+	//  payload 数据
 	assert.True(t, len(payload) > 0)
 
 	var dest testStruct
@@ -68,5 +70,9 @@ func TestCodec(t *testing.T) {
 
 	assert.DeepEqual(t, src.A, dest.A)
 	assert.DeepEqual(t, src.B, dest.B)
+
+	assert.Nil(t, src.C)
+	assert.Nil(t, dest.C)
+	// 全是nil
 	assert.DeepEqual(t, src.C, dest.C)
 }

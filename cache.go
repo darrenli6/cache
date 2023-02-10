@@ -72,6 +72,13 @@ type Strategy struct {
 // GetCacheStrategyByRequest User can use this function to design custom cache strategy by request.
 // The first return value bool means whether this request should be cached.
 // The second return value Strategy determine the special strategy by this request.
+/*
+
+用户可以使用此函数根据请求设计自定义缓存策略。
+//第一个返回值bool表示是否缓存该请求。
+//第二个返回值Strategy通过此请求确定特殊策略。
+
+*/
 type GetCacheStrategyByRequest func(ctx context.Context, c *app.RequestContext) (bool, Strategy)
 
 const (
@@ -248,9 +255,13 @@ func getRequestUriIgnoreQueryOrder(requestURI string) (string, error) {
 }
 
 // NewCacheByRequestPath a shortcut function for caching response by url path, means will discard the query params
+// NewCacheByRequestPath是一个根据url路径缓存响应的快捷函数，意味着将丢弃查询参数
+// defaultExpire 过期时间
 func NewCacheByRequestPath(defaultCacheStore persist.CacheStore, defaultExpire time.Duration, opts ...Option) app.HandlerFunc {
+
 	opts = append(opts, WithCacheStrategyByRequest(func(ctx context.Context, c *app.RequestContext) (bool, Strategy) {
 		return true, Strategy{
+			// key 就是路径
 			CacheKey: b2s(c.Request.Path()),
 		}
 	}))

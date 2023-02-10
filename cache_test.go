@@ -59,8 +59,10 @@ import (
 )
 
 func hertzHandler(middleware app.HandlerFunc, withRand bool) *route.Engine {
+
 	r := route.NewEngine(config.NewOptions([]config.Option{}))
 
+	// 请求/cache
 	r.Use(middleware)
 	r.GET("/cache", func(ctx context.Context, c *app.RequestContext) {
 		body := "uid:" + c.Query("uid")
@@ -73,25 +75,35 @@ func hertzHandler(middleware app.HandlerFunc, withRand bool) *route.Engine {
 	return r
 }
 
+// 通过请求路径测试缓冲
 func TestCacheByRequestPath(t *testing.T) {
+
+	// 实例化一个内存存储库
 	memoryStore := persist.NewMemoryStore(1 * time.Minute)
+	//过期时间 3秒
 	cachePathMiddleware := NewCacheByRequestPath(memoryStore, 3*time.Second)
 
 	handler := hertzHandler(cachePathMiddleware, true)
 
+	// 发起请求
 	w1 := ut.PerformRequest(handler, "GET", "/cache?uid=u1", nil)
 	w2 := ut.PerformRequest(handler, "GET", "/cache?uid=u2", nil)
 	w3 := ut.PerformRequest(handler, "GET", "/cache?uid=u3", nil)
 
+	// nil
 	assert.NotEqual(t, "", w1.Body)
 	assert.DeepEqual(t, w1.Body, w2.Body)
 	assert.DeepEqual(t, w2.Body, w3.Body)
 	assert.DeepEqual(t, w1.Code, w2.Code)
 }
 
+// 测试缓冲
 func TestCacheHitMissCallback(t *testing.T) {
+	// 缓冲击中次数
 	var cacheHitCount, cacheMissCount int32
+	// 实例化内存库
 	memoryStore := persist.NewMemoryStore(1 * time.Minute)
+	//
 	cachePathMiddleware := NewCacheByRequestPath(memoryStore, 3*time.Second,
 		WithOnHitCache(func(ctx context.Context, c *app.RequestContext) {
 			atomic.AddInt32(&cacheHitCount, 1)
@@ -100,13 +112,16 @@ func TestCacheHitMissCallback(t *testing.T) {
 			atomic.AddInt32(&cacheMissCount, 1)
 		}),
 	)
+
 	handler := hertzHandler(cachePathMiddleware, true)
 
 	ut.PerformRequest(handler, "GET", "/cache?uid=u1", nil)
 	ut.PerformRequest(handler, "GET", "/cache?uid=u2", nil)
 	ut.PerformRequest(handler, "GET", "/cache?uid=u3", nil)
 
+	// 缓冲击中次数二次
 	assert.DeepEqual(t, int32(2), cacheHitCount)
+
 	assert.DeepEqual(t, int32(1), cacheMissCount)
 }
 

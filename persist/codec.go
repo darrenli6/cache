@@ -45,6 +45,7 @@ import (
 	"encoding/gob"
 )
 
+// 序列化
 // Serialize returns a []byte representing the passed value
 func Serialize(value interface{}) ([]byte, error) {
 	var b bytes.Buffer

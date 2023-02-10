@@ -51,7 +51,9 @@ import (
 type Options struct {
 	getCacheStrategyByRequest GetCacheStrategyByRequest
 
-	hitCacheCallback  OnHitCacheCallback
+	// 击中缓冲回调
+	hitCacheCallback OnHitCacheCallback
+
 	missCacheCallback OnMissCacheCallback
 
 	beforeReplyWithCacheCallback BeforeReplyWithCacheCallback
@@ -65,8 +67,10 @@ type Options struct {
 }
 
 // OnHitCacheCallback define the callback when use cache
+// 使用缓冲的回调
 type OnHitCacheCallback app.HandlerFunc
 
+// 默认
 var defaultHitCacheCallback = func(ctx context.Context, c *app.RequestContext) {}
 
 // OnMissCacheCallback define the callback when use cache
@@ -85,6 +89,7 @@ func (o *Options) Apply(opts []Option) {
 	}
 }
 
+// 实例化Options
 func newOptions(opts ...Option) *Options {
 	options := &Options{
 		hitCacheCallback:             defaultHitCacheCallback,
@@ -99,7 +104,9 @@ func newOptions(opts ...Option) *Options {
 }
 
 // Option represents the optional function.
+
 type Option struct {
+	// 代表方法
 	F func(o *Options)
 }
 

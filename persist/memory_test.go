@@ -49,6 +49,7 @@ import (
 )
 
 func TestMemoryStore(t *testing.T) {
+	// 默认过期时间
 	memoryStore := NewMemoryStore(1 * time.Minute)
 
 	ctx := context.Background()
@@ -60,11 +61,16 @@ func TestMemoryStore(t *testing.T) {
 	assert.DeepEqual(t, expectVal, value)
 
 	time.Sleep(1 * time.Second)
+	// 过期检查
 	assert.DeepEqual(t, ErrCacheMiss, memoryStore.Get(ctx, "test", &value))
 
 	memoryStore.Set(ctx, "test", "value", 1*time.Second)
+
 	assert.Nil(t, memoryStore.Get(ctx, "test", &value))
+
 	assert.DeepEqual(t, "value", value)
+
+	// 删除缓冲
 	memoryStore.Delete(ctx, "test")
 	assert.DeepEqual(t, ErrCacheMiss, memoryStore.Get(ctx, "test", &value))
 }

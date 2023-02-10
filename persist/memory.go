@@ -60,13 +60,21 @@ type MemoryStore struct {
 }
 
 // NewMemoryStore allocate a local memory store with default expiration
+// NewMemoryStore分配一个默认过期的本地内存存储
+//
+//	defaultExpiration 默认过期时间
+//
+// 集成别人家的工具 github.com/jellydator/ttlcache/v2
 func NewMemoryStore(defaultExpiration time.Duration) *MemoryStore {
+
+	// 实例化
 	cacheStore := ttlcache.NewCache()
 	if err := cacheStore.SetTTL(defaultExpiration); err != nil {
 		hlog.Errorf(setTTLErrorFormat, err)
 	}
 
 	// disable SkipTTLExtensionOnHit default
+	// 禁用SkipTTLExtensionOnHit默认值
 	cacheStore.SkipTTLExtensionOnHit(true)
 
 	return &MemoryStore{
@@ -75,6 +83,7 @@ func NewMemoryStore(defaultExpiration time.Duration) *MemoryStore {
 }
 
 // Set put key value pair to memory store, and expire after expireDuration
+
 func (c *MemoryStore) Set(ctx context.Context, key string, value interface{}, expireDuration time.Duration) error {
 	return c.Cache.SetWithTTL(key, value, expireDuration)
 }
